@@ -5,8 +5,10 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.paging.LoadState
 import com.codinginflow.imagesearchapp.R
 import com.codinginflow.imagesearchapp.databinding.FragmentGalleryBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,6 +32,9 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         val adapter = UnsplashPhotoAdapter()
 
         binding.apply {
+            buttonRetry.setOnClickListener {
+                adapter.retry() //Paging
+            }
             recyclerView.setHasFixedSize(true)
             recyclerView.adapter = adapter.withLoadStateHeaderAndFooter(
                 header = UnsplashPhotoLoadStateAdapter {
@@ -44,6 +49,23 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
             adapter.submitData(viewLifecycleOwner.lifecycle, it)
         }
 
+        adapter.addLoadStateListener { loadState ->
+            binding.apply {
+                progressBar.isVisible = (loadState.source.refresh is LoadState.Loading)
+                recyclerView.isVisible = (loadState.source.refresh is LoadState.NotLoading)
+                buttonRetry.isVisible = (loadState.source.refresh is LoadState.Error)
+                textViewError.isVisible = (loadState.source.refresh is LoadState.Error)
+                //Empty view
+                if (loadState.source.refresh is LoadState.NotLoading //Not loading
+                    && loadState.append.endOfPaginationReached //Last page NEEDED!
+                    && adapter.itemCount == 0
+                ) {
+                    recyclerView.isVisible = false
+                    textViewEmpty.isVisible = true
+                    textViewError.isVisible = false
+                }
+            }
+        }
 
     }
 

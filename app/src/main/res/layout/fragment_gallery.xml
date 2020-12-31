@@ -47,7 +47,7 @@
         android:visibility="gone"
         tools:visibility="visible"
         android:text="@string/results_could_not_be_loaded"
-        app:layout_constraintBottom_toTopOf="@+id/progress_bar"
+        app:layout_constraintBottom_toTopOf="@+id/button_retry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
