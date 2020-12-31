@@ -11,7 +11,7 @@ import com.codinginflow.imagesearchapp.R
 import com.codinginflow.imagesearchapp.data.UnsplashPhoto
 import com.codinginflow.imagesearchapp.databinding.ItemUnsplashPhotoBinding
 
-class UnsplashPhotoAdapter :
+class UnsplashPhotoAdapter(private val listener: OnItemClickListener) :
     PagingDataAdapter<UnsplashPhoto, UnsplashPhotoAdapter.PhotoViewHolder>(PHOTO_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
@@ -26,8 +26,22 @@ class UnsplashPhotoAdapter :
         currentItem?.let { holder.bind(it) }
     }
 
-    class PhotoViewHolder(private val binding: ItemUnsplashPhotoBinding) :
+    inner class PhotoViewHolder(private val binding: ItemUnsplashPhotoBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.root.setOnClickListener {
+                val position = bindingAdapterPosition //Parent class property
+                if (position != RecyclerView.NO_POSITION) { //This is to check if it's not loading, -1 etc
+                    getItem(position)?.let { unsplashPhoto ->
+                        listener.onItemClick(
+                            photo = unsplashPhoto,
+                            position = position
+                        )
+                    }
+                }
+            }
+        }
 
         fun bind(photo: UnsplashPhoto): Unit {
             binding.apply {
@@ -61,6 +75,10 @@ class UnsplashPhotoAdapter :
             }
 
         }
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(photo: UnsplashPhoto, position: Int)
     }
 
 }
